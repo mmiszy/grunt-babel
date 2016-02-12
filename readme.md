@@ -37,7 +37,23 @@ grunt.registerTask('default', ['babel']);
 
 ## Options
 
-See the Babel [options](https://babeljs.io/docs/usage/options), except for `filename` which is handled for you.
+See the Babel [options](https://babeljs.io/docs/usage/options), except for `filename` which is handled for you and `inputSourceMap` (see below).
+
+### inputSourceMap
+`inputSourceMap` option should be a function which takes two arguments and returns path to the existing source map.
+
+
+```
+grunt.initConfig({
+	babel: {
+		options: {
+			inputSourceMap: function (el, sourceFileName) {
+				return return el.src[0].replace(/\.js$/, '.js.map');
+			}
+		}
+	}
+});
+```
 
 
 ## License

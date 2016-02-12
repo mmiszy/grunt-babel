@@ -5,16 +5,28 @@ var babel = require('babel-core');
 module.exports = function (grunt) {
 	grunt.registerMultiTask('babel', 'Use next generation JavaScript, today', function () {
 		var options = this.options();
+        var inputSourceMapFn;
+        if (options.inputSourceMap && typeof options.inputSourceMap === 'function') {
+            inputSourceMapFn = options.inputSourceMap.bind(options);
+        }
+
+        delete options.filename;
+        delete options.filenameRelative;
+        delete options.inputSourceMap;
 
 		this.files.forEach(function (el) {
-			delete options.filename;
-			delete options.filenameRelative;
-
 			options.sourceFileName = path.relative(path.dirname(el.dest), el.src[0]);
 
 			if (process.platform === 'win32') {
 				options.sourceFileName = options.sourceFileName.replace(/\\/g, '/');
 			}
+
+            if (inputSourceMapFn) {
+                var inputSourceMapPath = path.relative('.', inputSourceMapFn(el, options.sourceFileName));
+                if (grunt.file.exists(inputSourceMapPath)) {
+                    options.inputSourceMap = grunt.file.readJSON(inputSourceMapPath);
+                }
+            }
 
 			options.sourceMapTarget = path.basename(el.dest);
 
